@@ -178,4 +178,11 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "False").lower() in {
     "yes",
     "on",
 }
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@example.com")

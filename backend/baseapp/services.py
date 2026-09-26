@@ -7,7 +7,10 @@ from django.utils.crypto import salted_hmac
 
 from authentication.models import SingUpCode, TempToken, TempUser
 
-from .mail import send_mail
+from .mail import send_template_mail
+
+VERIFICATION_CODE_EXPIRY_MINUTES = 5
+ACTIVATION_TOKEN_EXPIRY_MINUTES = 60
 
 
 def verification_code_hash(email, code):
@@ -39,10 +42,14 @@ def send_verification_code(temp_user):
             code=verification_code_hash(locked_user.email, code),
         )
     transaction.on_commit(
-        lambda: send_mail(
+        lambda: send_template_mail(
             locked_user.email,
-            f"Your E-Shop verification code is: {code}. It expires in 5 minutes.",
+            "verification_code",
             "Confirm your E-Shop email",
+            {
+                "code": code,
+                "expiry_minutes": VERIFICATION_CODE_EXPIRY_MINUTES,
+            },
         )
     )
     return code_object
@@ -56,14 +63,19 @@ def issue_activation_token(temp_user, activation_url):
         token_object = TempToken.objects.create(
             user=locked_user,
             token=activation_token_hash(token),
-            expire_time=timezone.now() + timedelta(minutes=60),
+            expire_time=timezone.now()
+            + timedelta(minutes=ACTIVATION_TOKEN_EXPIRY_MINUTES),
         )
     transaction.on_commit(
-        lambda: send_mail(
+        lambda: send_template_mail(
             locked_user.email,
-            f"Complete registration using this activation token: {token}\n"
-            f"Or open: {activation_url.format(token=token)}",
+            "activation_token",
             "Activate your E-Shop account",
+            {
+                "token": token,
+                "activation_url": activation_url.format(token=token),
+                "expiry_minutes": ACTIVATION_TOKEN_EXPIRY_MINUTES,
+            },
         )
     )
     return token_object, token

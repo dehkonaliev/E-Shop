@@ -1,7 +1,9 @@
 import re
+import smtplib
+from unittest.mock import patch
 
 from django.core import mail
-from django.test import override_settings
+from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -137,3 +139,44 @@ class AuthenticationFlowTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_registration_email_has_html_alternative(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                reverse("auth:register"),
+                {"email": "html@example.com"},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.to, ["html@example.com"])
+        code_match = re.search(r"\b\d{6}\b", message.body)
+        self.assertIsNotNone(code_match)
+        self.assertEqual(len(message.alternatives), 1)
+        content, mimetype = message.alternatives[0]
+        self.assertEqual(mimetype, "text/html")
+        self.assertIn(code_match.group(0), content)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class MailDeliveryFailureTests(TransactionTestCase):
+    """The on_commit mail send must run inside the request, not after it."""
+
+    def setUp(self):
+        mail.outbox.clear()
+
+    def test_registration_returns_503_when_smtp_delivery_fails(self):
+        with patch("baseapp.mail.logger"), patch(
+            "django.core.mail.backends.locmem.EmailBackend.send_messages",
+            side_effect=smtplib.SMTPServerDisconnected("Connection closed"),
+        ):
+            response = self.client.post(
+                reverse("auth:register"),
+                {"email": "offline@example.com"},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertIn("email", str(response.data).lower())

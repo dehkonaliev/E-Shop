@@ -1,0 +1,394 @@
+{
+  "info": {
+    "_postman_id": "5a34f96c-4f61-47da-a2f2-e1f77cbf9e11",
+    "name": "E-Shop API",
+    "description": "E-Shop REST API collection. Protected requests use Authorization: Bearer {{access_token}}. The old DRF Token header is not used.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Email confirmation, activation, login and JWT lifecycle.",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@example.com\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register/",
+            "description": "Creates or reuses TempUser and sends a six-digit verification code."
+          }
+        },
+        {
+          "name": "Confirm Email",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@example.com\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/email-confirm/",
+            "description": "Confirms the code and returns the one-time activation token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('activation_token', body.activation_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{activation_token}}\",\n  \"username\": \"customer\",\n  \"password\": \"StrongPass123!\",\n  \"first_name\": \"Customer\",\n  \"phone_number\": \"+998901234567\",\n  \"age\": 25\n}"
+            },
+            "url": "{{base_url}}/api/auth/user-activation/",
+            "description": "Consumes the activation token, creates active CustomUser and returns access/refresh JWTs."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('access_token', body.access);",
+                  "pm.collectionVariables.set('refresh_token', body.refresh);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"StrongPass123!\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login/",
+            "description": "Returns a JWT access/refresh pair for email and password."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('access_token', body.access);",
+                  "pm.collectionVariables.set('refresh_token', body.refresh);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": "{{base_url}}/api/auth/profile/",
+            "description": "Returns the authenticated user's profile."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Updated\",\n  \"phone_number\": \"+998901234567\",\n  \"age\": 26\n}"
+            },
+            "url": "{{base_url}}/api/auth/profile/",
+            "description": "Updates mutable profile fields with Bearer authentication."
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/token/refresh/",
+            "description": "Rotates the refresh token and returns a new access token."
+          }
+        },
+        {
+          "name": "Verify Access Token",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{access_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/token/verify/"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/logout/",
+            "description": "Blacklists the current user's refresh token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "description": "Public catalog and staff catalog management.",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": "{{base_url}}/api/categories/"
+          }
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": "{{base_url}}/api/products/?category=electronics&min_price=100&max_price=500&search=phone&ordering=-created_at",
+            "description": "Supports category, min_price, max_price, search, ordering, page and page_size."
+          }
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": "{{base_url}}/api/products/{{product_id}}/"
+          }
+        },
+        {
+          "name": "Create Category (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"slug\": \"electronics\",\n  \"parent\": null\n}"
+            },
+            "url": "{{base_url}}/api/categories/",
+            "description": "Requires an admin JWT in Authorization: Bearer {{access_token}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('category_id', pm.response.json().id);"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Electronics and Gadgets\"\n}"},
+            "url": "{{base_url}}/api/categories/{{category_id}}/"
+          }
+        },
+        {
+          "name": "Delete Category (Admin)",
+          "request": {"method": "DELETE", "url": "{{base_url}}/api/categories/{{category_id}}/"}
+        },
+        {
+          "name": "Create Product (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": {{category_id}},\n  \"name\": \"Smartphone\",\n  \"slug\": \"smartphone\",\n  \"description\": \"6GB RAM smartphone\",\n  \"price\": \"399.99\",\n  \"stock\": 20\n}"
+            },
+            "url": "{{base_url}}/api/products/"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('product_id', pm.response.json().id);"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Product (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"price\": \"379.99\",\n  \"stock\": 15\n}"},
+            "url": "{{base_url}}/api/products/{{product_id}}/"
+          }
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {"method": "DELETE", "url": "{{base_url}}/api/products/{{product_id}}/"}
+        }
+      ]
+    },
+    {
+      "name": "Interactions",
+      "description": "Authenticated likes and public/authenticated comments.",
+      "item": [
+        {
+          "name": "Toggle Like",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/products/{{product_id}}/like/",
+            "description": "Adds the like when absent and removes it when present."
+          }
+        },
+        {
+          "name": "My Likes",
+          "request": {"method": "GET", "url": "{{base_url}}/api/likes/"}
+        },
+        {
+          "name": "Product Comments",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": "{{base_url}}/api/products/{{product_id}}/comments/"
+          }
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"text\": \"Excellent product\",\n  \"rating\": 5\n}"},
+            "url": "{{base_url}}/api/products/{{product_id}}/comments/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart and Orders",
+      "description": "Authenticated cart, transactional checkout and order history.",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {"method": "GET", "url": "{{base_url}}/api/cart/"}
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"product_id\": {{product_id}},\n  \"quantity\": 2\n}"},
+            "url": "{{base_url}}/api/cart/add/"
+          }
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"product_id\": {{product_id}}\n}"},
+            "url": "{{base_url}}/api/cart/remove/"
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipping_address\": \"12 Amir Temur Street, Tashkent\"\n}"
+            },
+            "url": "{{base_url}}/api/orders/checkout/",
+            "description": "Atomically creates the order, decrements stock and clears the cart."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('order_id', pm.response.json().id);"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "My Orders",
+          "request": {"method": "GET", "url": "{{base_url}}/api/orders/"}
+        },
+        {
+          "name": "Order Detail",
+          "request": {"method": "GET", "url": "{{base_url}}/api/orders/{{order_id}}/"}
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"shipping\"\n}"},
+            "url": "{{base_url}}/api/orders/{{order_id}}/",
+            "description": "Admin-only status transition: pending to shipping, then shipping to completed; cancellation is supported."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"},
+    {"key": "refresh_token", "value": "", "type": "string"},
+    {"key": "activation_token", "value": "", "type": "string"},
+    {"key": "product_id", "value": "1", "type": "string"},
+    {"key": "category_id", "value": "1", "type": "string"},
+    {"key": "order_id", "value": "1", "type": "string"}
+  ]
+}

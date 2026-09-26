@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ subject }}</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,0.1);">
+            <tr>
+              <td style="background-color:#111827;padding:24px 32px;">
+                <span style="display:inline-block;font-size:20px;font-weight:700;letter-spacing:-0.2px;color:#ffffff;">E-Shop</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;">
+                <h1 style="margin:0 0 16px;font-size:20px;line-height:28px;font-weight:600;color:#111827;">
+                  Activate your account
+                </h1>
+                <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:#52606d;">
+                  Your email is confirmed. Use the button below to finish creating your account.
+                </p>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                  <tr>
+                    <td style="border-radius:8px;background-color:#111827;">
+                      <a href="{{ activation_url }}" style="display:inline-block;padding:13px 24px;font-size:15px;font-weight:600;line-height:20px;color:#ffffff;text-decoration:none;border-radius:8px;">
+                        Activate my account
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;font-size:14px;line-height:21px;color:#52606d;">
+                  Or paste this link into your browser:
+                </p>
+                <p style="margin:0 0 24px;font-size:13px;line-height:20px;word-break:break-all;">
+                  <a href="{{ activation_url }}" style="color:#1d4ed8;">{{ activation_url }}</a>
+                </p>
+                <p style="margin:0 0 8px;font-size:14px;line-height:21px;color:#52606d;">
+                  The token expires in {{ expiry_minutes }} minutes and can only be used once.
+                </p>
+                <p style="margin:0;font-size:14px;line-height:21px;color:#7b8794;">
+                  If you did not request this, you can safely ignore this email.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 32px;background-color:#f4f5f7;border-top:1px solid #e4e7eb;">
+                <p style="margin:0;font-size:12px;line-height:18px;color:#7b8794;">
+                  You are receiving this because someone used this address to sign up for E-Shop.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
