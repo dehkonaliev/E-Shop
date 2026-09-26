@@ -1,0 +1,150 @@
+{% load i18n %}
+<style>
+  .eshop-dashboard { margin: 0 0 28px; }
+  .eshop-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  .eshop-head h2 { margin: 0; font-size: 20px; }
+  .eshop-head p { margin: 0; color: var(--body-quiet-color, #666); font-size: 13px; }
+  .eshop-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .eshop-card { background: var(--body-bg, #fff); border: 1px solid var(--hairline-color, #e8e8e8); border-radius: 10px; padding: 14px 16px; }
+  .eshop-card span { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--body-quiet-color, #666); margin-bottom: 6px; }
+  .eshop-card strong { display: block; font-size: 24px; line-height: 1.1; }
+  .eshop-card small { color: var(--body-quiet-color, #666); font-size: 12px; }
+  .eshop-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .eshop-panel { background: var(--body-bg, #fff); border: 1px solid var(--hairline-color, #e8e8e8); border-radius: 10px; padding: 14px 16px 6px; }
+  .eshop-panel h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; color: var(--body-quiet-color, #666); }
+  .eshop-panel table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .eshop-panel th, .eshop-panel td { text-align: left; padding: 7px 4px; border-bottom: 1px solid var(--hairline-color, #eee); vertical-align: top; }
+  .eshop-panel th { font-weight: 600; color: var(--body-quiet-color, #666); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .eshop-panel td.num, .eshop-panel th.num { text-align: right; white-space: nowrap; }
+  .eshop-empty { color: var(--body-quiet-color, #666); font-size: 13px; padding: 6px 0 10px; }
+  .eshop-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--hairline-color, #e8e8e8); }
+  .eshop-tag.pending { background: #f6efe0; }
+  .eshop-tag.shipping { background: #e6ecf4; }
+  .eshop-tag.completed { background: #e9efe6; }
+  .eshop-tag.cancelled { background: #f4e7e4; }
+  .eshop-link { color: var(--link-fg, #0b6bcb); }
+</style>
+
+<div class="eshop-dashboard">
+  <div class="eshop-head">
+    <h2>Store overview</h2>
+    <p>Live figures from the catalogue, customers and orders.</p>
+  </div>
+
+  <div class="eshop-cards">
+    <div class="eshop-card">
+      <span>{% translate "Products" %}</span>
+      <strong>{{ eshop_stats.products.total }}</strong>
+      <small>{{ eshop_stats.products.in_stock }} in stock · {{ eshop_stats.products.sold_out }} sold out</small>
+    </div>
+    <div class="eshop-card">
+      <span>{% translate "Inventory value" %}</span>
+      <strong>${{ eshop_stats.products.catalogue_value|floatformat:2 }}</strong>
+      <small>{{ eshop_stats.products.units }} units in stock</small>
+    </div>
+    <div class="eshop-card">
+      <span>{% translate "Orders" %}</span>
+      <strong>{{ eshop_stats.orders.total }}</strong>
+      <small>{{ eshop_stats.orders.pending }} pending · {{ eshop_stats.orders.shipping }} shipping</small>
+    </div>
+    <div class="eshop-card">
+      <span>{% translate "Revenue" %}</span>
+      <strong>${{ eshop_stats.orders.revenue|floatformat:2 }}</strong>
+      <small>{{ eshop_stats.orders.completed }} completed · {{ eshop_stats.orders.cancelled }} cancelled</small>
+    </div>
+    <div class="eshop-card">
+      <span>{% translate "Customers" %}</span>
+      <strong>{{ eshop_stats.customers }}</strong>
+      <small>{{ eshop_stats.staff }} staff · {{ eshop_stats.comments }} reviews</small>
+    </div>
+    <div class="eshop-card">
+      <span>{% translate "Categories" %}</span>
+      <strong>{{ eshop_stats.categories }}</strong>
+      <small>{% translate "active catalogue groups" %}</small>
+    </div>
+  </div>
+
+  <div class="eshop-panels">
+    <div class="eshop-panel">
+      <h3>{% translate "Top customers by orders" %}</h3>
+      {% if eshop_stats.top_customers %}
+      <table>
+        <thead>
+          <tr>
+            <th>{% translate "Customer" %}</th>
+            <th class="num">{% translate "Orders" %}</th>
+            <th class="num">{% translate "Items" %}</th>
+            <th class="num">{% translate "Spent" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for customer in eshop_stats.top_customers %}
+          <tr>
+            <td><a class="eshop-link" href="{% url 'admin:authentication_customuser_change' customer.id %}">{{ customer.username }}</a></td>
+            <td class="num">{{ customer.order_count }}</td>
+            <td class="num">{{ customer.items_ordered }}</td>
+            <td class="num">${{ customer.total_spent|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="eshop-empty">{% translate "No orders placed yet." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="eshop-panel">
+      <h3>{% translate "Recent orders" %}</h3>
+      {% if eshop_stats.recent_orders %}
+      <table>
+        <thead>
+          <tr>
+            <th>{% translate "Order" %}</th>
+            <th>{% translate "Customer" %}</th>
+            <th>{% translate "Status" %}</th>
+            <th class="num">{% translate "Total" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in eshop_stats.recent_orders %}
+          <tr>
+            <td><a class="eshop-link" href="{% url 'admin:orders_order_change' order.id %}">#{{ order.id }}</a></td>
+            <td>{{ order.user__username }}</td>
+            <td><span class="eshop-tag {{ order.status }}">{{ order.status_display }}</span></td>
+            <td class="num">${{ order.total_price|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="eshop-empty">{% translate "No orders yet." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="eshop-panel">
+      <h3>{% translate "Low stock" %}</h3>
+      {% if eshop_stats.low_stock %}
+      <table>
+        <thead>
+          <tr>
+            <th>{% translate "Product" %}</th>
+            <th>{% translate "Category" %}</th>
+            <th class="num">{% translate "Left" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in eshop_stats.low_stock %}
+          <tr>
+            <td><a class="eshop-link" href="{% url 'admin:products_product_change' product.id %}">{{ product.name }}</a></td>
+            <td>{{ product.category__name|default:"—" }}</td>
+            <td class="num">{{ product.stock }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="eshop-empty">{% translate "Every product is comfortably stocked." %}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
