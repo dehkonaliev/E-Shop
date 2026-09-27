@@ -137,21 +137,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             <span className="burger" aria-hidden="true" />
           </button>
-          <Wordmark />
-          <nav className={`nav-links ${menuOpen ? 'open' : ''}`} aria-label="Primary">
-            <NavLink to="/shop" onClick={() => setMenuOpen(false)}>
-              Shop
-            </NavLink>
-            <NavLink to="/shop?ordering=-created_at" onClick={() => setMenuOpen(false)}>
-              New arrivals
-            </NavLink>
-            <NavLink to="/shop?in_stock=true" onClick={() => setMenuOpen(false)}>
-              In stock
-            </NavLink>
-            <NavLink to="/#philosophy" onClick={() => setMenuOpen(false)}>
-              Our approach
-            </NavLink>
-          </nav>
+          <div className="header-brand">
+            <Wordmark />
+            <nav className={`nav-links ${menuOpen ? 'open' : ''}`} aria-label="Primary">
+              <NavLink to="/shop" onClick={() => setMenuOpen(false)}>
+                Shop
+              </NavLink>
+            </nav>
+          </div>
           <div className="nav-actions">
             {admin ? (
               <NavLink className="btn btn-dark btn-sm" to="/admin">

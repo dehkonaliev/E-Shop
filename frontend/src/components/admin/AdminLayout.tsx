@@ -40,7 +40,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
       <aside className={`admin-sidebar ${open ? 'open' : ''}`}>
         <div className="admin-sidebar-head">
-          <Link className="brand" to="/admin" onClick={() => setOpen(false)}>
+          <Link className="brand" to="/" onClick={() => setOpen(false)}>
             <span className="brand-mark" aria-hidden="true">
               E
             </span>

@@ -46,6 +46,13 @@
   height: 72px;
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-width: 0;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -1729,6 +1736,10 @@ textarea.input {
   .header-inner {
     height: 64px;
     gap: 12px;
+  }
+
+  .header-brand {
+    gap: 16px;
   }
 
   .nav-links {
