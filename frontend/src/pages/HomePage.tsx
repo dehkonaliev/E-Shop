@@ -1,4 +1,4 @@
-import { ArrowRight, Package, RefreshCw, Sparkles, Truck } from 'lucide-react'
+import { ArrowRight, RefreshCw, Sparkles, Truck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
@@ -91,23 +91,14 @@ export function HomePage() {
               </li>
             </ul>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="art-card art-card-back">
-              <Package size={30} strokeWidth={1} />
-              <span>Since 2026</span>
-            </div>
-            <div className="art-card art-card-mid">
-              <span className="art-kicker">Edit No. 04</span>
-              <p className="art-quote">
-                Buy less,
-                <br />
-                choose well.
-              </p>
-            </div>
-            <div className="art-card art-card-front">
-              <span className="art-line" />
-              <p className="art-label">Everyday, refined</p>
-            </div>
+          <div className="hero-art">
+            <img
+              className="hero-graphic"
+              src="/online-buy.svg"
+              width={500}
+              height={500}
+              alt="An order confirmation card with a green tick and a Done button."
+            />
           </div>
         </div>
       </section>
